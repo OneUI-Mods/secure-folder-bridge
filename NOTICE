@@ -1,0 +1,3 @@
+Secure Folder Bridge by ryuya0124.
+
+Android application dependencies include Material Components for Android, AndroidX libraries, and Kotlin standard library, distributed under Apache License 2.0. Their project and license links are available in the app license screen. The Apache License is bundled at app/src/main/assets/APACHE-2.0.txt. Gradle wrapper build tooling is distributed under Apache License 2.0.
