@@ -28,7 +28,7 @@
     <string name="work_description">在工作存储空间中显示同一文件夹。锁定或暂停工作配置文件时，仅断开该侧的连接。</string>
     <string name="options_locked">请先断开连接，再更改这些设置。</string>
     <string name="behavior_title">何时断开连接</string>
-    <string name="behavior_description">屏幕关闭、手机或安全文件夹锁定，或控制进程停止时，连接将断开。不会自动重新连接。</string>
+    <string name="behavior_description">屏幕关闭、手机或安全文件夹锁定，或控制进程停止时，连接将断开。不会自动解锁任何配置文件。</string>
     <string name="scope_description">仅连接共享文件，不包含应用内部数据。断开连接不会清除其他应用已打开的文件、已保存的副本或缩略图。</string>
     <string name="check_access">检查 root 和锁定状态</string>
     <string name="access_title">访问检查</string>
@@ -49,4 +49,10 @@
     <string name="about">关于此应用</string>
     <string name="about_body">版本 %1$s\nryuya0124\n\n需要 root 权限。目前支持主用户 0、工作用户 10、安全文件夹用户 150 的 Galaxy。</string>
     <string name="version_footer">版本 %1$s · ryuya0124</string>
+    <string name="auto_boot">开机后自动连接</string>
+    <string name="auto_boot_description">开机后等待手机和安全文件夹解锁，再连接一次。等待期间会显示通知。需要提前授予 root 权限。</string>
+    <string name="waiting_unlock">等待解锁</string>
+    <string name="waiting_unlock_summary">解锁手机和安全文件夹后即可连接。关闭连接可取消等待。</string>
+    <string name="work_missing">没有工作配置文件</string>
+    <string name="work_missing_summary">此设备未配置工作配置文件。</string>
 </resources>

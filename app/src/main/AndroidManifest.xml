@@ -2,6 +2,7 @@
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
   <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
   <application android:theme="@style/Theme.Bridge" android:label="@string/app_name" android:localeConfig="@xml/locales_config"
     android:icon="@drawable/ic_bridge" android:allowBackup="false" android:supportsRtl="true">
     <activity android:name=".MainActivity" android:exported="true">
@@ -10,6 +11,11 @@
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
+    <receiver android:name=".BootReceiver" android:exported="false">
+      <intent-filter>
+        <action android:name="android.intent.action.BOOT_COMPLETED" />
+      </intent-filter>
+    </receiver>
     <service android:name=".BridgeService" android:exported="false" android:foregroundServiceType="specialUse">
       <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
         android:value="User-enabled rooted cross-profile folder mount; disconnects when locked or its controller exits" />

@@ -28,7 +28,7 @@
     <string name="work_description">Affiche le même dossier dans le stockage professionnel. Le verrouillage ou la mise en pause de ce profil déconnecte uniquement son dossier.</string>
     <string name="options_locked">Déconnectez les dossiers pour modifier ces paramètres.</string>
     <string name="behavior_title">Fin de la connexion</string>
-    <string name="behavior_description">La connexion se ferme lorsque l’écran s’éteint, que le téléphone ou le Dossier sécurisé se verrouille, ou que le processus de contrôle s’arrête. Aucune reconnexion automatique.</string>
+    <string name="behavior_description">La connexion se ferme lorsque l’écran s’éteint, que le téléphone ou le Dossier sécurisé se verrouille, ou que le processus de contrôle s’arrête. Aucun profil n’est déverrouillé automatiquement.</string>
     <string name="scope_description">Seuls les fichiers partagés sont connectés, sans les données internes des applications. La déconnexion ne supprime pas les fichiers déjà ouverts, ni les copies et miniatures enregistrées par d’autres applications.</string>
     <string name="check_access">Vérifier root et le verrouillage</string>
     <string name="access_title">Vérification de l’accès</string>
@@ -49,4 +49,10 @@
     <string name="about">À propos</string>
     <string name="about_body">Version %1$s\nryuya0124\n\nL’accès root est requis. La configuration Galaxy prise en charge utilise les utilisateurs 0 pour le profil principal, 10 pour le profil professionnel et 150 pour le Dossier sécurisé.</string>
     <string name="version_footer">Version %1$s · ryuya0124</string>
+    <string name="auto_boot">Connexion au démarrage</string>
+    <string name="auto_boot_description">Après le démarrage, attend le déverrouillage du téléphone et du Dossier sécurisé, puis se connecte une fois. Une notification est affichée pendant l’attente. L’accès root doit déjà être autorisé.</string>
+    <string name="waiting_unlock">En attente du déverrouillage</string>
+    <string name="waiting_unlock_summary">Déverrouillez le téléphone et le Dossier sécurisé pour connecter les dossiers. Désactivez la connexion pour annuler l’attente.</string>
+    <string name="work_missing">Aucun profil professionnel</string>
+    <string name="work_missing_summary">Aucun profil professionnel n’est configuré sur cet appareil.</string>
 </resources>

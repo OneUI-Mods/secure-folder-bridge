@@ -8,7 +8,7 @@ object RootShell {
     private fun quote(value: String) = "'" + value.replace("'", "'\\''") + "'"
 
     fun start(context: Context, operation: String): java.lang.Process {
-        require(operation in setOf("check", "status", "readonly", "readwrite"))
+        require(operation in setOf("check", "status", "readonly", "readwrite", "await-readonly", "await-readwrite"))
         val apk = context.applicationInfo.sourceDir
         val helper = File(context.applicationInfo.nativeLibraryDir, "libfolder_mount.so").absolutePath
         val work = context.getSharedPreferences("settings", Context.MODE_PRIVATE).getBoolean("work_profile", true)

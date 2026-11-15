@@ -28,7 +28,7 @@
     <string name="work_description">업무 저장공간에도 같은 폴더를 표시합니다. 업무 프로필이 잠기거나 일시 중지되면 해당 프로필만 연결을 해제합니다.</string>
     <string name="options_locked">설정을 변경하려면 먼저 연결을 해제하세요.</string>
     <string name="behavior_title">연결이 해제되는 경우</string>
-    <string name="behavior_description">화면이 꺼지거나 휴대전화 또는 보안 폴더가 잠기거나 제어 프로세스가 종료되면 연결을 해제합니다. 자동으로 다시 연결하지 않습니다.</string>
+    <string name="behavior_description">화면이 꺼지거나 휴대전화 또는 보안 폴더가 잠기거나 제어 프로세스가 종료되면 연결을 해제합니다. 잠금을 자동으로 해제하지 않습니다.</string>
     <string name="scope_description">공유 파일만 연결하며 앱 내부 데이터는 포함하지 않습니다. 연결을 해제해도 다른 앱이 이미 연 파일이나 저장한 복사본과 썸네일은 삭제되지 않습니다.</string>
     <string name="check_access">root 및 잠금 상태 확인</string>
     <string name="access_title">접근 확인</string>
@@ -49,4 +49,10 @@
     <string name="about">앱 정보</string>
     <string name="about_body">버전 %1$s\nryuya0124\n\nroot 권한이 필요합니다. 현재 기본 사용자 0, 업무 사용자 10, 보안 폴더 사용자 150인 Galaxy를 지원합니다.</string>
     <string name="version_footer">버전 %1$s · ryuya0124</string>
+    <string name="auto_boot">시작 시 자동 연결</string>
+    <string name="auto_boot_description">기기 시작 후 휴대전화와 보안 폴더의 잠금이 해제되면 한 번 연결합니다. 대기 중에도 알림을 표시합니다. root 권한을 미리 허용해야 합니다.</string>
+    <string name="waiting_unlock">잠금 해제 대기 중</string>
+    <string name="waiting_unlock_summary">휴대전화와 보안 폴더의 잠금을 해제하면 연결됩니다. 연결을 끄면 대기를 취소할 수 있습니다.</string>
+    <string name="work_missing">업무 프로필 없음</string>
+    <string name="work_missing_summary">이 기기에는 업무 프로필이 설정되어 있지 않습니다.</string>
 </resources>

@@ -28,7 +28,7 @@
     <string name="work_description">Add the same folder to work storage. Locking or pausing that profile disconnects its folder separately.</string>
     <string name="options_locked">Disconnect to change these options.</string>
     <string name="behavior_title">When it disconnects</string>
-    <string name="behavior_description">The connection closes when the screen turns off, the phone or Secure Folder locks, or the controller stops. It does not reconnect automatically.</string>
+    <string name="behavior_description">The connection closes when the screen turns off, the phone or Secure Folder locks, or the controller stops. It never unlocks either profile automatically.</string>
     <string name="scope_description">Only shared files are connected. Private app data is excluded. Disconnecting does not erase files already opened or copies and thumbnails saved by other apps.</string>
     <string name="check_access">Check root &amp; lock status</string>
     <string name="access_title">Access check</string>
@@ -49,4 +49,10 @@
     <string name="about">About</string>
     <string name="about_body">Version %1$s\nryuya0124\n\nRoot is required. The current Galaxy layout uses main user 0, work user 10, and Secure Folder user 150.</string>
     <string name="version_footer">Version %1$s · ryuya0124</string>
+    <string name="auto_boot">Connect after startup</string>
+    <string name="auto_boot_description">After startup, wait for the phone and Secure Folder to unlock, then connect once. A notification is shown while waiting. Root must already be allowed.</string>
+    <string name="waiting_unlock">Waiting for unlock</string>
+    <string name="waiting_unlock_summary">Unlock the phone and Secure Folder to connect. You can turn the connection off to cancel waiting.</string>
+    <string name="work_missing">No work profile</string>
+    <string name="work_missing_summary">No work profile is configured on this device.</string>
 </resources>

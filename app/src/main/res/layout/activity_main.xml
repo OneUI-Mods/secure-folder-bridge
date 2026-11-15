@@ -92,8 +92,15 @@
                         android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="64dp"
                         android:layout_marginTop="8dp" android:text="@string/work_enabled"
                         android:textAppearance="?attr/textAppearanceTitleMedium" android:drawablePadding="16dp" />
-                    <com.google.android.material.textview.MaterialTextView android:layout_width="match_parent"
+                    <com.google.android.material.textview.MaterialTextView android:id="@+id/work_profile_description" android:layout_width="match_parent"
                         android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:text="@string/work_description"
+                        android:textAppearance="?attr/textAppearanceBodyMedium" android:textColor="?attr/colorOnSurfaceVariant" />
+                    <com.google.android.material.divider.MaterialDivider android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/auto_boot_switch"
+                        android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="64dp"
+                        android:layout_marginTop="8dp" android:text="@string/auto_boot" android:textAppearance="?attr/textAppearanceTitleMedium" />
+                    <com.google.android.material.textview.MaterialTextView android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:text="@string/auto_boot_description"
                         android:textAppearance="?attr/textAppearanceBodyMedium" android:textColor="?attr/colorOnSurfaceVariant" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

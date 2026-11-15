@@ -8,6 +8,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.os.UserManager
+import android.os.UserHandle
 import android.net.Uri
 import android.provider.Settings
 import android.view.View
@@ -76,6 +78,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
         binding.checkAccess.setOnClickListener { checkAccess() }
+        binding.autoBootSwitch.setOnCheckedChangeListener { _, enabled ->
+            if (!refreshing) {
+                settings.edit().putBoolean("auto_boot", enabled).apply()
+                if (enabled) requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 10)
+                else if (settings.getString("state", "") == "WAITING") {
+                    startService(Intent(this, BridgeService::class.java).setAction("STOP"))
+                }
+            }
+        }
     }
 
     private fun configureDestination(row: ViewDestinationBinding, user: Int, name: Int, icon: Int, description: Int) {
@@ -90,20 +101,30 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun render() {
-        val state = settings.getString("state", "OFF") ?: "OFF"
+        val savedState = settings.getString("state", "OFF") ?: "OFF"
+        val state = if (savedState in setOf("CONNECTED", "CONNECTING", "WAITING") && !BridgeService.running) "OFF" else savedState
         val connected = state == "CONNECTED"
         val connecting = state == "CONNECTING"
-        val active = connected || connecting
+        val waiting = state == "WAITING"
+        val active = connected || connecting || waiting
         val readonly = settings.getBoolean("readonly", false)
         val work = settings.getBoolean("work_profile", true)
+        val workExists = runCatching {
+            val workUser = UserHandle.getUserHandleForUid(10 * 100_000)
+            getSystemService(UserManager::class.java).userProfiles.contains(workUser)
+        }.getOrDefault(false)
         val error = state.startsWith("ERROR:")
         refreshing = true
         binding.connectionSwitch.isChecked = active
         binding.connectionSwitch.isEnabled = !connecting
         binding.readOnlySwitch.isChecked = readonly
-        binding.workProfileSwitch.isChecked = work
+        binding.workProfileSwitch.isChecked = work && workExists
+        binding.autoBootSwitch.isChecked = settings.getBoolean("auto_boot", false)
         binding.readOnlySwitch.isEnabled = !active
-        binding.workProfileSwitch.isEnabled = !active
+        binding.workProfileSwitch.isEnabled = !active && workExists
+        binding.workProfileDescription.setText(if (workExists) R.string.work_description else R.string.work_missing_summary)
+        binding.workDestination.copyPath.isEnabled = workExists
+        binding.workDestination.folderPath.text = if (workExists) "/storage/emulated/10/SecureFolder" else getString(R.string.work_missing_summary)
         binding.optionsLockedHint.visibility = if (active) View.VISIBLE else View.GONE
         binding.connectingProgress.visibility = if (connecting) View.VISIBLE else View.GONE
         binding.accessMode.setText(if (readonly) R.string.read_only else R.string.read_write)
@@ -111,12 +132,14 @@ class MainActivity : AppCompatActivity() {
         binding.connectionStatus.setText(when {
             connected -> R.string.connected
             connecting -> R.string.connecting
+            waiting -> R.string.waiting_unlock
             error -> R.string.connection_error
             else -> R.string.disconnected
         })
         binding.connectionSummary.setText(when {
             connected -> R.string.connected_summary
             connecting -> R.string.connecting_summary
+            waiting -> R.string.waiting_unlock_summary
             error -> R.string.error_summary
             state == "LOCKED" -> R.string.locked_summary
             else -> R.string.disconnected_summary
@@ -129,9 +152,11 @@ class MainActivity : AppCompatActivity() {
         binding.mainDestination.profileStatus.setText(when {
             connected -> R.string.connected
             connecting -> R.string.connecting
+            waiting -> R.string.waiting_unlock
             else -> R.string.disconnected
         })
         binding.workDestination.profileStatus.setText(when {
+            !workExists || settings.getString("work_state", "") == "WORK_MISSING" -> R.string.work_missing
             !work -> R.string.disabled
             connecting -> R.string.connecting
             !connected -> R.string.disconnected

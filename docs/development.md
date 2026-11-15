@@ -1,6 +1,6 @@
 # Development
 
-Sources are Kotlin for Android/root control and C for the mount operations. No Xposed hook, network server, boot receiver, or file copy/synchronization service is used.
+Sources are Kotlin for Android/root control and C for the mount operations. No Xposed hook, network server, or file copy/synchronization service is used.
 
 ## Build
 
@@ -36,4 +36,10 @@ Device tests use synthetic files under a uniquely named Secure Folder subdirecto
 
 The screen uses Material 3 XML layouts with view binding, an AppCompat host, dynamic colors, and system-bar insets. Connection state, per-profile destinations, options, and diagnostic details are presented separately. The access check does not overwrite the connection status. Android locale configuration exposes nine supported languages through system app-language settings; screen, confirmation, and notification labels use string resources. Protocol values and native diagnostic messages remain unchanged.
 
-Version 0.2.0 UI validation uses a separate Android 17 emulator, not the shared Galaxy screen. It covers Japanese light/dark themes, 200% font scale, landscape, copy actions, confirmation cancellation, offline license navigation, translation coverage/format parameters, and rendered labels in all nine languages. The root controller and mount helper are unchanged from 0.1.0.
+Version 0.2.0 UI validation uses a separate Android 17 emulator, not the shared Galaxy screen. It covers Japanese light/dark themes, 200% font scale, landscape, copy actions, confirmation cancellation, offline license navigation, translation coverage/format parameters, and rendered labels in all nine languages. The native mount helper is unchanged from 0.1.0. The root controller additionally gates mounting on an interactive display and supports a cancellable boot-unlock wait.
+
+## Optional startup
+
+`RECEIVE_BOOT_COMPLETED` starts the existing special-use foreground service only when `auto_boot` is enabled (default false). Credential-encrypted preferences are read after main-user unlock; no locked-boot receiver is used. The root controller waits for an interactive display and normal TrustManager/UserManager unlock checks. While waiting it sleeps for five seconds without a wake lock, alarms, or mounted source paths. STOP/pipe EOF cancels the wait. Once connected, screen-off/lock behavior remains unchanged; this option does not continually reconnect after locks. Missing user10 storage skips the work keeper, and UserManager profile handles disable unavailable work controls in the UI.
+
+The [Android foreground-service restrictions](https://developer.android.com/develop/background-work/services/fgs/changes) and [boot broadcast contract](https://developer.android.com/reference/android/content/Intent#ACTION_BOOT_COMPLETED) define the startup path. A root grant must already exist. Failures are reported rather than repeatedly requesting permission in the background.

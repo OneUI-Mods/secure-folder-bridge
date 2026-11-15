@@ -16,15 +16,19 @@ class BridgeService : Service() {
     private val worker = Executors.newSingleThreadExecutor()
     @Volatile private var process: java.lang.Process? = null
     private var starting = false
+    private var notification: Notification.Builder? = null
     @Volatile private var stopRequested = false
     private val screenOff = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
+            // An automatic startup may wait across screen-off without exposing files.
+            if (getSharedPreferences("settings", MODE_PRIVATE).getString("state", "") == "WAITING") return
             disconnect()
         }
     }
 
     override fun onCreate() {
         super.onCreate()
+        running = true
         registerReceiver(screenOff, IntentFilter(Intent.ACTION_SCREEN_OFF), RECEIVER_NOT_EXPORTED)
     }
 
@@ -39,17 +43,21 @@ class BridgeService : Service() {
         notifications.createNotificationChannel(NotificationChannel("bridge", getString(R.string.connection_title), NotificationManager.IMPORTANCE_LOW))
         val stop = PendingIntent.getService(this, 1, Intent(this, javaClass).setAction("STOP"), PendingIntent.FLAG_IMMUTABLE)
         val open = PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
-        startForeground(1, Notification.Builder(this, "bridge")
+        val builder = Notification.Builder(this, "bridge")
             .setSmallIcon(R.drawable.ic_bridge).setContentTitle(getString(R.string.app_name))
             .setContentText("/storage/emulated/0/SecureFolder").setContentIntent(open)
-            .addAction(Notification.Action.Builder(null, getString(R.string.disconnect), stop).build()).build())
-        update("CONNECTING")
+            .addAction(Notification.Action.Builder(null, getString(R.string.disconnect), stop).build())
+        notification = builder
+        startForeground(1, builder.build())
+        val automatic = intent?.action == AUTO_START
+        update(if (automatic) "WAITING" else "CONNECTING")
         getSharedPreferences("settings", MODE_PRIVATE).edit().putString("work_state", "WAITING").apply()
         val readonly = getSharedPreferences("settings", MODE_PRIVATE).getBoolean("readonly", false)
         worker.execute {
             try {
                 if (stopRequested) return@execute
-                val child = RootShell.start(this, if (readonly) "readonly" else "readwrite")
+                val mode = if (readonly) "readonly" else "readwrite"
+                val child = RootShell.start(this, if (automatic) "await-$mode" else mode)
                 process = child
                 if (stopRequested) disconnect()
                 child.inputStream.bufferedReader().useLines { lines ->
@@ -57,7 +65,8 @@ class BridgeService : Service() {
                         when {
                             line == "CONNECTED" -> update("CONNECTED")
                             line == "LOCKED" -> update("LOCKED")
-                            line == "WORK_CONNECTED" || line == "WORK_LOCKED" -> {
+                            line == "WAITING" -> update("WAITING")
+                            line in setOf("WORK_CONNECTED", "WORK_LOCKED", "WORK_MISSING") -> {
                                 getSharedPreferences("settings", MODE_PRIVATE).edit().putString("work_state", line).apply()
                                 sendBroadcast(Intent(ACTION_STATE).setPackage(packageName))
                             }
@@ -67,7 +76,7 @@ class BridgeService : Service() {
                 }
                 val result = child.waitFor()
                 val state = getSharedPreferences("settings", MODE_PRIVATE).getString("state", "")
-                if (result != 0 && (state == "CONNECTING" || state == "CONNECTED")) {
+                if (result != 0 && state in setOf("CONNECTING", "CONNECTED", "WAITING")) {
                     update("ERROR: Root connection ended (exit $result). Check KernelSU permission.")
                 }
             } catch (error: Throwable) {
@@ -75,7 +84,7 @@ class BridgeService : Service() {
             } finally {
                 process = null
                 val current = getSharedPreferences("settings", MODE_PRIVATE).getString("state", "")
-                if (current == "CONNECTED" || current == "CONNECTING") update("OFF")
+                if (current in setOf("CONNECTED", "CONNECTING", "WAITING")) update("OFF")
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
             }
@@ -85,6 +94,14 @@ class BridgeService : Service() {
 
     private fun update(state: String) {
         getSharedPreferences("settings", MODE_PRIVATE).edit().putString("state", state).apply()
+        notification?.let { builder ->
+            val message = when (state) {
+                "WAITING" -> getString(R.string.waiting_unlock)
+                "CONNECTING" -> getString(R.string.connecting)
+                else -> "/storage/emulated/0/SecureFolder"
+            }
+            getSystemService(NotificationManager::class.java).notify(1, builder.setContentText(message).build())
+        }
         sendBroadcast(Intent(ACTION_STATE).setPackage(packageName))
     }
 
@@ -105,6 +122,7 @@ class BridgeService : Service() {
     }
 
     override fun onDestroy() {
+        running = false
         unregisterReceiver(screenOff)
         disconnect()
         worker.shutdown()
@@ -114,6 +132,9 @@ class BridgeService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     companion object {
+        @Volatile var running = false
+            private set
         const val ACTION_STATE = "dev.ryuya.securefolderbridge.STATE"
+        const val AUTO_START = "AUTO_START"
     }
 }

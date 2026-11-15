@@ -28,7 +28,7 @@
     <string name="work_description">仕事用の内部ストレージにも同じフォルダを表示します。仕事用がロック・休止中の場合は、その側だけ切断します。</string>
     <string name="options_locked">設定を変更するには、接続をオフにしてください。</string>
     <string name="behavior_title">接続が解除されるとき</string>
-    <string name="behavior_description">画面消灯、本体やSecure Folderのロック、制御処理の終了時に切断します。自動では再接続しません。</string>
+    <string name="behavior_description">画面消灯、本体やSecure Folderのロック、制御処理の終了時に切断します。ロックを自動で解除することはありません。</string>
     <string name="scope_description">対象は共有ファイルです。アプリ内部データは含みません。切断しても、他アプリが開いたファイルや保存したコピー・サムネイルは消去しません。</string>
     <string name="check_access">rootとロック状態を確認</string>
     <string name="access_title">アクセスの確認</string>
@@ -49,4 +49,10 @@
     <string name="about">このアプリについて</string>
     <string name="about_body">バージョン %1$s\nryuya0124\n\nroot権限が必要です。現在は通常側ユーザー0・仕事用ユーザー10・Secure Folderユーザー150のGalaxyに対応しています。</string>
     <string name="version_footer">バージョン %1$s · ryuya0124</string>
+    <string name="auto_boot">起動時に自動接続</string>
+    <string name="auto_boot_description">端末起動後、本体とSecure Folderの解除を待って一度接続します。待機中も通知を表示します。事前にrootの許可が必要です。</string>
+    <string name="waiting_unlock">ロック解除を待っています</string>
+    <string name="waiting_unlock_summary">本体とSecure Folderを解除すると接続します。接続をオフにすると待機を取り消せます。</string>
+    <string name="work_missing">仕事用プロファイルなし</string>
+    <string name="work_missing_summary">この端末には仕事用プロファイルが設定されていません。</string>
 </resources>

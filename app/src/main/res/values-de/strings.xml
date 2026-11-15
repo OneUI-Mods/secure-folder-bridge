@@ -28,7 +28,7 @@
     <string name="work_description">Zeigt denselben Ordner im Speicher des Arbeitsprofils an. Wird das Arbeitsprofil gesperrt oder pausiert, wird nur dessen Verbindung getrennt.</string>
     <string name="options_locked">Trenne die Verbindung, um diese Einstellungen zu ändern.</string>
     <string name="behavior_title">Wann die Verbindung endet</string>
-    <string name="behavior_description">Die Verbindung endet beim Ausschalten des Bildschirms, beim Sperren des Telefons oder Sicheren Ordners oder beim Beenden des Steuerprozesses. Sie wird nicht automatisch wiederhergestellt.</string>
+    <string name="behavior_description">Die Verbindung endet beim Ausschalten des Bildschirms, beim Sperren des Telefons oder Sicheren Ordners oder beim Beenden des Steuerprozesses. Kein Profil wird automatisch entsperrt.</string>
     <string name="scope_description">Nur freigegebene Dateien werden verbunden, keine internen App-Daten. Bereits geöffnete Dateien sowie von anderen Apps gespeicherte Kopien und Vorschaubilder werden beim Trennen nicht gelöscht.</string>
     <string name="check_access">Root-Zugriff und Sperrstatus prüfen</string>
     <string name="access_title">Zugriffsprüfung</string>
@@ -49,4 +49,10 @@
     <string name="about">Über diese App</string>
     <string name="about_body">Version %1$s\nryuya0124\n\nRoot-Zugriff ist erforderlich. Unterstützt wird derzeit die Galaxy-Aufteilung mit Hauptnutzer 0, Arbeitsnutzer 10 und Sicherem Ordner als Nutzer 150.</string>
     <string name="version_footer">Version %1$s · ryuya0124</string>
+    <string name="auto_boot">Nach dem Start verbinden</string>
+    <string name="auto_boot_description">Nach dem Gerätestart wird auf die Entsperrung von Telefon und Sicherem Ordner gewartet und einmal verbunden. Währenddessen erscheint eine Benachrichtigung. Root muss bereits erlaubt sein.</string>
+    <string name="waiting_unlock">Warten auf Entsperrung</string>
+    <string name="waiting_unlock_summary">Entsperre das Telefon und den Sicheren Ordner. Schalte die Verbindung aus, um das Warten abzubrechen.</string>
+    <string name="work_missing">Kein Arbeitsprofil</string>
+    <string name="work_missing_summary">Auf diesem Gerät ist kein Arbeitsprofil eingerichtet.</string>
 </resources>

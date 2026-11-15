@@ -23,6 +23,8 @@ object RootMain {
     private class ProfileGate {
         private val trust = remoteInterface("trust", "android.app.trust.ITrustManager")
         private val users = remoteInterface("user", "android.os.IUserManager")
+        private val power = remoteInterface("power", "android.os.IPowerManager")
+        private val interactive = Class.forName("android.os.IPowerManager").getMethod("isInteractive")
         private val locked = Class.forName("android.app.trust.ITrustManager").methods.single {
             it.name == "isDeviceLocked" && it.parameterTypes.all { type -> type == Int::class.javaPrimitiveType }
         }
@@ -43,9 +45,11 @@ object RootMain {
             return profileUnlocked && !isLocked(user)
         }
 
-        fun available(): Boolean = profileAvailable(150) && !isLocked(0)
+        fun available(): Boolean = interactive.invoke(power) == true && profileAvailable(150) && !isLocked(0)
 
-        fun workAvailable(): Boolean = File("/data/media/10").isDirectory && profileAvailable(10)
+        fun workExists(): Boolean = File("/data/media/10").isDirectory
+
+        fun workAvailable(): Boolean = workExists() && profileAvailable(10)
     }
 
     private fun native(helper: String, operation: String, user: Int = 0): String {
@@ -98,8 +102,9 @@ object RootMain {
                     println(native(helper, "status"))
                     return
                 }
-                "readonly", "readwrite" -> {
-                    check(gate.available()) { "Unlock the phone and Secure Folder first" }
+                "readonly", "readwrite", "await-readonly", "await-readwrite" -> {
+                    val waitForUnlock = operation.startsWith("await-")
+                    if (!waitForUnlock) check(gate.available()) { "Unlock the phone and Secure Folder first" }
                     native(helper, "status") // Creates and validates the root-owned control directory.
                     RandomAccessFile("$PRIVATE/session.lock", "rw").use { lockFile ->
                         val lock = lockFile.channel.tryLock() ?: error("Another connection is active")
@@ -114,14 +119,21 @@ object RootMain {
                                 }
                             }, "BridgeControl").apply { isDaemon = true }
                             input.start()
+                            if (waitForUnlock && !gate.available()) {
+                                println("WAITING")
+                                System.out.flush()
+                                // No wake lock, alarm, file scan, or mount while waiting.
+                                while (!stopped.get() && !gate.available()) Thread.sleep(5000)
+                            }
+                            if (stopped.get()) return
                             check(gate.available()) { "Secure Folder became locked" }
-                            val readonly = operation == "readonly"
+                            val readonly = operation.endsWith("readonly")
                             keepers[0] = startKeeper(helper, readonly, 0)
                             if (workProfile && gate.workAvailable()) {
                                 keepers[10] = startKeeper(helper, readonly, 10)
                                 println("WORK_CONNECTED")
                             } else if (workProfile) {
-                                println("WORK_LOCKED")
+                                println(if (gate.workExists()) "WORK_LOCKED" else "WORK_MISSING")
                             }
                             println("CONNECTED")
                             System.out.flush()
@@ -141,7 +153,7 @@ object RootMain {
                                     } else if (!workAvailable && keepers.containsKey(10)) {
                                         val workKeeper = keepers.remove(10)
                                         if (workKeeper != null) stopKeeper(workKeeper)
-                                        println("WORK_LOCKED")
+                                        println(if (gate.workExists()) "WORK_LOCKED" else "WORK_MISSING")
                                         System.out.flush()
                                     }
                                 }

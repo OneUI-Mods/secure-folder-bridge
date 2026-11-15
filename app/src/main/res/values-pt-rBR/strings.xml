@@ -28,7 +28,7 @@
     <string name="work_description">Mostra a mesma pasta no armazenamento de trabalho. Ao bloquear ou pausar esse perfil, apenas a pasta dele é desconectada.</string>
     <string name="options_locked">Desconecte as pastas para alterar estas configurações.</string>
     <string name="behavior_title">Quando a conexão termina</string>
-    <string name="behavior_description">A conexão termina quando a tela se apaga, o celular ou a Pasta Segura é bloqueado ou o processo de controle para. Não há reconexão automática.</string>
+    <string name="behavior_description">A conexão termina quando a tela se apaga, o celular ou a Pasta Segura é bloqueado ou o processo de controle para. Nenhum perfil é desbloqueado automaticamente.</string>
     <string name="scope_description">Apenas arquivos compartilhados são conectados, sem os dados internos dos aplicativos. Desconectar não apaga arquivos já abertos, cópias ou miniaturas salvas por outros aplicativos.</string>
     <string name="check_access">Verificar root e bloqueio</string>
     <string name="access_title">Verificação de acesso</string>
@@ -49,4 +49,10 @@
     <string name="about">Sobre o aplicativo</string>
     <string name="about_body">Versão %1$s\nryuya0124\n\nÉ necessário acesso root. A configuração Galaxy atual usa o usuário 0 para o perfil principal, 10 para trabalho e 150 para a Pasta Segura.</string>
     <string name="version_footer">Versão %1$s · ryuya0124</string>
+    <string name="auto_boot">Conectar ao iniciar</string>
+    <string name="auto_boot_description">Após iniciar o dispositivo, aguarda o desbloqueio do celular e da Pasta Segura e conecta uma vez. Uma notificação é exibida durante a espera. O root deve estar autorizado previamente.</string>
+    <string name="waiting_unlock">Aguardando desbloqueio</string>
+    <string name="waiting_unlock_summary">Desbloqueie o celular e a Pasta Segura para conectar. Desative a conexão para cancelar a espera.</string>
+    <string name="work_missing">Sem perfil de trabalho</string>
+    <string name="work_missing_summary">Nenhum perfil de trabalho está configurado neste dispositivo.</string>
 </resources>

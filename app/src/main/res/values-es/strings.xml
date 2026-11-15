@@ -28,7 +28,7 @@
     <string name="work_description">Muestra la misma carpeta en el almacenamiento de trabajo. Al bloquear o pausar ese perfil, solo se desconecta su carpeta.</string>
     <string name="options_locked">Desconecta las carpetas para cambiar estos ajustes.</string>
     <string name="behavior_title">Cuándo se desconecta</string>
-    <string name="behavior_description">La conexión se cierra al apagarse la pantalla, bloquearse el teléfono o Carpeta Segura, o detenerse el proceso de control. No se reconecta automáticamente.</string>
+    <string name="behavior_description">La conexión se cierra al apagarse la pantalla, bloquearse el teléfono o Carpeta Segura, o detenerse el proceso de control. No se desbloquea ningún perfil automáticamente.</string>
     <string name="scope_description">Solo se conectan archivos compartidos, no datos internos de las aplicaciones. La desconexión no borra los archivos ya abiertos ni las copias y miniaturas guardadas por otras aplicaciones.</string>
     <string name="check_access">Comprobar root y bloqueo</string>
     <string name="access_title">Comprobación de acceso</string>
@@ -49,4 +49,10 @@
     <string name="about">Acerca de esta aplicación</string>
     <string name="about_body">Versión %1$s\nryuya0124\n\nSe requiere acceso root. La configuración Galaxy actual usa el usuario 0 para el perfil principal, el 10 para trabajo y el 150 para Carpeta Segura.</string>
     <string name="version_footer">Versión %1$s · ryuya0124</string>
+    <string name="auto_boot">Conectar al iniciar</string>
+    <string name="auto_boot_description">Tras iniciar el dispositivo, espera a que se desbloqueen el teléfono y Carpeta Segura y conecta una vez. Se muestra una notificación durante la espera. Root debe estar autorizado previamente.</string>
+    <string name="waiting_unlock">Esperando el desbloqueo</string>
+    <string name="waiting_unlock_summary">Desbloquea el teléfono y Carpeta Segura para conectar. Desactiva la conexión para cancelar la espera.</string>
+    <string name="work_missing">Sin perfil de trabajo</string>
+    <string name="work_missing_summary">No hay ningún perfil de trabajo configurado en este dispositivo.</string>
 </resources>
