@@ -1,0 +1,30 @@
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    app:cardBackgroundColor="?attr/colorSurfaceContainer" app:cardElevation="0dp"
+    app:strokeWidth="0dp" app:shapeAppearanceOverlay="@style/Shape.Bridge.Card">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="20dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:gravity="center_vertical" android:orientation="horizontal">
+            <ImageView android:id="@+id/profile_icon" android:layout_width="24dp" android:layout_height="24dp"
+                android:layout_marginEnd="12dp" android:importantForAccessibility="no" app:tint="?attr/colorOnSurfaceVariant" />
+            <com.google.android.material.textview.MaterialTextView android:id="@+id/profile_name"
+                android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:textAppearance="?attr/textAppearanceTitleMedium" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/copy_path"
+                style="@style/Widget.Material3.Button.TextButton" android:layout_width="48dp" android:layout_height="48dp"
+                android:layout_marginStart="8dp" android:padding="0dp" android:minWidth="48dp" android:minHeight="48dp"
+                app:icon="@drawable/ic_copy" app:iconPadding="0dp" app:iconGravity="textStart"
+                app:iconTint="?attr/colorPrimary" />
+        </LinearLayout>
+        <com.google.android.material.textview.MaterialTextView android:id="@+id/folder_path"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant" android:textIsSelectable="true" />
+        <com.google.android.material.textview.MaterialTextView android:id="@+id/profile_status"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:textAppearance="?attr/textAppearanceLabelLarge"
+            android:textColor="?attr/colorPrimary" android:accessibilityLiveRegion="polite" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

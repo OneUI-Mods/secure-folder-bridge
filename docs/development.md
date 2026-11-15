@@ -31,3 +31,9 @@ Symbolic links were tested with synthetic files on the Galaxy S26 Ultra / Androi
 ## Verification
 
 Device tests use synthetic files under a uniquely named Secure Folder subdirectory and both users' Download directories. Work-profile command tests use the My Files UID with a storage-access group in the existing root context; they do not prove the actual app's SELinux domain or GUI behavior. Validate normal-UID read/write, edit, rename, create/delete, read-only rejection, and disconnection on pipe closure. Use a separately compiled helper with only its fixed test paths replaced; never add arbitrary source/target path arguments to the release helper. Actual GUI and physical lock transitions must be reported separately from command-level validation.
+
+## Interface and translations
+
+The screen uses Material 3 XML layouts with view binding, an AppCompat host, dynamic colors, and system-bar insets. Connection state, per-profile destinations, options, and diagnostic details are presented separately. The access check does not overwrite the connection status. Android locale configuration exposes nine supported languages through system app-language settings; screen, confirmation, and notification labels use string resources. Protocol values and native diagnostic messages remain unchanged.
+
+Version 0.2.0 UI validation uses a separate Android 17 emulator, not the shared Galaxy screen. It covers Japanese light/dark themes, 200% font scale, landscape, copy actions, confirmation cancellation, offline license navigation, translation coverage/format parameters, and rendered labels in all nine languages. The root controller and mount helper are unchanged from 0.1.0.

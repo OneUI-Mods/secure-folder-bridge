@@ -15,8 +15,8 @@ android {
         applicationId = "dev.ryuya.securefolderbridge"
         minSdk = 36
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0"
         ndk { abiFilters += "arm64-v8a" }
     }
     signingConfigs {
@@ -37,6 +37,10 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+    buildFeatures {
+        viewBinding = true
+        buildConfig = true
     }
     packaging { jniLibs { useLegacyPackaging = true } }
     lint { abortOnError = true }

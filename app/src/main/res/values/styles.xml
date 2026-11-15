@@ -1,5 +1,15 @@
 <resources>
   <style name="Theme.Bridge" parent="Theme.Material3.DayNight.NoActionBar">
     <item name="android:fontFamily">sans</item>
+    <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+    <item name="android:windowLightNavigationBar">?attr/isLightTheme</item>
+    <item name="android:windowActionModeOverlay">true</item>
+  </style>
+  <style name="Shape.Bridge.Card" parent="">
+    <item name="cornerFamily">rounded</item>
+    <item name="cornerSize">24dp</item>
+  </style>
+  <style name="TextAppearance.Bridge.Section" parent="TextAppearance.Material3.TitleSmall">
+    <item name="android:textColor">?attr/colorPrimary</item>
   </style>
 </resources>

@@ -36,13 +36,13 @@ class BridgeService : Service() {
         if (starting) return START_NOT_STICKY
         starting = true
         val notifications = getSystemService(NotificationManager::class.java)
-        notifications.createNotificationChannel(NotificationChannel("bridge", "Folder connection", NotificationManager.IMPORTANCE_LOW))
+        notifications.createNotificationChannel(NotificationChannel("bridge", getString(R.string.connection_title), NotificationManager.IMPORTANCE_LOW))
         val stop = PendingIntent.getService(this, 1, Intent(this, javaClass).setAction("STOP"), PendingIntent.FLAG_IMMUTABLE)
         val open = PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
         startForeground(1, Notification.Builder(this, "bridge")
-            .setSmallIcon(R.drawable.ic_bridge).setContentTitle("Secure Folder Bridge")
+            .setSmallIcon(R.drawable.ic_bridge).setContentTitle(getString(R.string.app_name))
             .setContentText("/storage/emulated/0/SecureFolder").setContentIntent(open)
-            .addAction(Notification.Action.Builder(null, "Disconnect", stop).build()).build())
+            .addAction(Notification.Action.Builder(null, getString(R.string.disconnect), stop).build()).build())
         update("CONNECTING")
         getSharedPreferences("settings", MODE_PRIVATE).edit().putString("work_state", "WAITING").apply()
         val readonly = getSharedPreferences("settings", MODE_PRIVATE).getBoolean("readonly", false)
