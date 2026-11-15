@@ -1,5 +1,7 @@
 # Secure Folder Bridge
 
+[日本語](README.md) · [English](README.en.md)
+
 GalaxyのSecure Folder内にあるファイルを、通常側と仕事用プロファイルのファイルマネージャーからフォルダとして開くrootアプリです。ファイルをコピーせず、内部ストレージの `SecureFolder` から元の共有ストレージへ接続します。
 
 ## 画面と設定
