@@ -22,6 +22,12 @@ An app foreground service owns a root controller pipe. The root controller check
 
 The bridge neither clears credentials nor opens encrypted storage before normal unlock. Already-open file descriptors and copies owned by other apps are outside the scope of pathname detachment.
 
+## Why profile entries are bind mounts
+
+The main-profile entry remains `/storage/emulated/0/SecureFolder`; the work-profile entry is `/storage/emulated/10/SecureFolder`. Both resolve to the same underlying shared-storage files, without copying or synchronization. The work entry does not depend on permission to traverse another user's emulated-storage path.
+
+Symbolic links were tested with synthetic files on the Galaxy S26 Ultra / Android 17 build `CP2A.260605.016.S948QOPU1BZI9`. Creating a link through emulated storage returned `Function not implemented`. A link created as root under `/data/media` existed in the backing filesystem, but both same-profile and cross-profile attempts to follow it through emulated storage returned `Permission denied`. Therefore the bridge uses directory bind mounts for file-manager access and does not install unusable symbolic links. This is a result for the tested device build, not a claim about every Android filesystem.
+
 ## Verification
 
 Device tests use synthetic files under a uniquely named Secure Folder subdirectory and both users' Download directories. Work-profile command tests use the My Files UID with a storage-access group in the existing root context; they do not prove the actual app's SELinux domain or GUI behavior. Validate normal-UID read/write, edit, rename, create/delete, read-only rejection, and disconnection on pipe closure. Use a separately compiled helper with only its fixed test paths replaced; never add arbitrary source/target path arguments to the release helper. Actual GUI and physical lock transitions must be reported separately from command-level validation.
