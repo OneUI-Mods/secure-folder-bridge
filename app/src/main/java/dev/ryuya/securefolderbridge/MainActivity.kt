@@ -26,6 +26,7 @@ class MainActivity : Activity() {
     private lateinit var status: TextView
     private lateinit var connection: MaterialSwitch
     private lateinit var readonly: MaterialSwitch
+    private lateinit var workProfile: MaterialSwitch
     private var refreshing = false
     private val ja get() = resources.configuration.locales[0].language == "ja"
     private fun words(japanese: String, english: String) = if (ja) japanese else english
@@ -78,8 +79,19 @@ class MainActivity : Activity() {
         }
         content.addView(readonly, LinearLayout.LayoutParams(-1, dp(64)))
         content.addView(text(words("OFFにすると、移動・削除なども元のファイルに反映されます。接続中は変更できません。", "When off, moves and deletions affect the original files. Change this before connecting."), 14, 24))
+        workProfile = MaterialSwitch(this).apply {
+            text = words("仕事用プロファイルにも表示", "Also show in work profile")
+            isChecked = settings.getBoolean("work_profile", true)
+            setOnCheckedChangeListener { _, checked -> settings.edit().putBoolean("work_profile", checked).apply() }
+        }
+        content.addView(workProfile, LinearLayout.LayoutParams(-1, dp(64)))
+        content.addView(text(words("通常側と仕事用の両方で「SecureFolder」が同じ元ファイルへ接続します。仕事用がロック・休止中の場合、その側だけ接続を外します。", "Both profiles get a SecureFolder pointing to the same original files. A locked or paused work profile is disconnected separately."), 14, 24))
         content.addView(button(words("保存先のパスをコピー", "Copy folder path")) {
-            getSystemService(ClipboardManager::class.java)?.setPrimaryClip(ClipData.newPlainText("Secure Folder", "/storage/emulated/0/SecureFolder"))
+            MaterialAlertDialogBuilder(this).setTitle(words("コピーするパス", "Choose folder path"))
+                .setItems(arrayOf(words("通常側", "Main profile"), words("仕事用", "Work profile"))) { _, index ->
+                    val user = if (index == 0) 0 else 10
+                    getSystemService(ClipboardManager::class.java)?.setPrimaryClip(ClipData.newPlainText("Secure Folder", "/storage/emulated/$user/SecureFolder"))
+                }.show()
         })
         content.addView(button(words("rootとロック状態を確認", "Check root and lock status")) {
             status.text = words("確認しています…", "Checking…")
@@ -103,9 +115,23 @@ class MainActivity : Activity() {
         refreshing = true
         connection.isChecked = false
         refreshing = false
+        val profiles = if (workProfile.isChecked) {
+            words("通常側・仕事用プロファイル", "the main and work profiles")
+        } else {
+            words("通常側", "the main profile")
+        }
+        val access = words(
+            "接続中は、${profiles}で共有ストレージへアクセスできるアプリから内容が見えるようになります。",
+            "While connected, apps with shared-storage access on $profiles can see its contents. ",
+        )
+        val mode = if (readonly.isChecked) {
+            words("読み取り専用で接続します。", "Files will be read-only.")
+        } else {
+            words("変更や削除は元のデータにも反映されます。", "Changes and deletions affect the original data.")
+        }
         MaterialAlertDialogBuilder(this)
             .setTitle(words("Secure Folderを接続しますか？", "Connect Secure Folder?"))
-            .setMessage(words("接続中は、通常側でファイルへアクセスできるアプリから内容が見えるようになります。" + if (readonly.isChecked) "読み取り専用で接続します。" else "変更や削除は元のデータにも反映されます。", "While connected, apps with access to shared storage on the main profile can see its contents. " + if (readonly.isChecked) "Files will be read-only." else "Changes and deletions affect the original data."))
+            .setMessage(access + mode)
             .setNegativeButton(words("キャンセル", "Cancel"), null)
             .setPositiveButton(words("接続", "Connect")) { _, _ ->
                 requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 10)
@@ -119,8 +145,14 @@ class MainActivity : Activity() {
         connection.isChecked = state == "CONNECTED" || state == "CONNECTING"
         connection.isEnabled = state != "CONNECTING"
         readonly.isEnabled = !connection.isChecked
+        workProfile.isEnabled = !connection.isChecked
         status.text = when (state) {
-            "CONNECTED" -> words("接続中", "Connected")
+            "CONNECTED" -> {
+                val work = if (!workProfile.isChecked) "" else if (settings.getString("work_state", "") == "WORK_CONNECTED")
+                    words("\n仕事用：接続中", "\nWork profile: connected")
+                else words("\n仕事用：ロック・休止中のため未接続", "\nWork profile: locked or paused")
+                words("通常側：接続中", "Main profile: connected") + work
+            }
             "CONNECTING" -> words("接続しています…", "Connecting…")
             "LOCKED" -> words("ロックされたため接続を解除しました", "Disconnected because the profile locked")
             "OFF" -> words("未接続", "Disconnected")

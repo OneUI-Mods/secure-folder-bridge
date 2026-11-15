@@ -38,27 +38,54 @@ object RootMain {
             return locked.invoke(trust, *arguments) as? Boolean ?: error("Unknown lock status")
         }
 
-        fun available(): Boolean {
-            val profileUnlocked = unlocked.invoke(users, 150) as? Boolean ?: return false
-            return profileUnlocked && !isLocked(0) && !isLocked(150)
+        private fun profileAvailable(user: Int): Boolean {
+            val profileUnlocked = unlocked.invoke(users, user) as? Boolean ?: return false
+            return profileUnlocked && !isLocked(user)
         }
+
+        fun available(): Boolean = profileAvailable(150) && !isLocked(0)
+
+        fun workAvailable(): Boolean = File("/data/media/10").isDirectory && profileAvailable(10)
     }
 
-    private fun native(helper: String, operation: String): String {
-        val child = ProcessBuilder(helper, operation).redirectErrorStream(true).start()
+    private fun native(helper: String, operation: String, user: Int = 0): String {
+        val child = ProcessBuilder(helper, operation, user.toString()).redirectErrorStream(true).start()
         val output = child.inputStream.bufferedReader().readText().trim()
         check(child.waitFor() == 0) { output.ifBlank { "Mount operation failed" } }
         return output
     }
 
+    private fun startKeeper(helper: String, readonly: Boolean, user: Int): java.lang.Process {
+        val operation = if (readonly) "keep-mount-ro" else "keep-mount-rw"
+        val child = ProcessBuilder(helper, operation, user.toString()).redirectErrorStream(true).start()
+        try {
+            val first = child.inputStream.bufferedReader().readLine()
+            check(first == "READ_ONLY" || first == "READ_WRITE") { first ?: "Mount helper stopped" }
+            return child
+        } catch (error: Throwable) {
+            child.outputStream.close()
+            child.waitFor(5, TimeUnit.SECONDS)
+            throw error
+        }
+    }
+
+    private fun stopKeeper(child: java.lang.Process) {
+        child.outputStream.close()
+        check(child.waitFor(5, TimeUnit.SECONDS) && child.exitValue() == 0) {
+            "Mount helper did not detach cleanly"
+        }
+    }
+
     @JvmStatic
     fun main(arguments: Array<String>) {
-        var keeper: java.lang.Process? = null
+        val keepers = linkedMapOf<Int, java.lang.Process>()
         var helper: String? = null
         var exitCode = 0
         try {
             check(Process.myUid() == 0) { "Root is required" }
-            check(arguments.size == 2) { "Expected helper and operation" }
+            check(arguments.size in 2..3) { "Expected helper, operation, and optional work-profile mode" }
+            val workProfile = arguments.getOrNull(2) == "work"
+            check(arguments.size == 2 || arguments[2] in setOf("work", "main")) { "Unknown profile mode" }
             helper = arguments[0]
             check(File(helper).isFile && File(helper).canExecute()) { "Missing mount helper" }
             val gate = ProfileGate()
@@ -88,11 +115,14 @@ object RootMain {
                             }, "BridgeControl").apply { isDaemon = true }
                             input.start()
                             check(gate.available()) { "Secure Folder became locked" }
-                            val child = ProcessBuilder(helper, if (operation == "readonly") "keep-mount-ro" else "keep-mount-rw")
-                                .redirectErrorStream(true).start()
-                            keeper = child
-                            val first = child.inputStream.bufferedReader().readLine()
-                            check(first == "READ_ONLY" || first == "READ_WRITE") { first ?: "Mount helper stopped" }
+                            val readonly = operation == "readonly"
+                            keepers[0] = startKeeper(helper, readonly, 0)
+                            if (workProfile && gate.workAvailable()) {
+                                keepers[10] = startKeeper(helper, readonly, 10)
+                                println("WORK_CONNECTED")
+                            } else if (workProfile) {
+                                println("WORK_LOCKED")
+                            }
                             println("CONNECTED")
                             System.out.flush()
                             while (!stopped.get()) {
@@ -100,6 +130,20 @@ object RootMain {
                                 if (!gate.available()) {
                                     println("LOCKED")
                                     break
+                                }
+                                check(keepers.values.all { it.isAlive }) { "A mount helper stopped unexpectedly" }
+                                if (workProfile) {
+                                    val workAvailable = gate.workAvailable()
+                                    if (workAvailable && !keepers.containsKey(10)) {
+                                        keepers[10] = startKeeper(helper, readonly, 10)
+                                        println("WORK_CONNECTED")
+                                        System.out.flush()
+                                    } else if (!workAvailable && keepers.containsKey(10)) {
+                                        val workKeeper = keepers.remove(10)
+                                        if (workKeeper != null) stopKeeper(workKeeper)
+                                        println("WORK_LOCKED")
+                                        System.out.flush()
+                                    }
                                 }
                             }
                         }
@@ -111,20 +155,16 @@ object RootMain {
             System.err.println("ERROR: " + (error.cause?.message ?: error.message ?: error.javaClass.simpleName))
             exitCode = 1
         } finally {
-            val child = keeper
-            if (child != null) {
+            for (child in keepers.values) {
                 try {
-                    child.outputStream.close()
-                    check(child.waitFor(5, TimeUnit.SECONDS) && child.exitValue() == 0) {
-                        "Mount helper did not detach cleanly"
-                    }
+                    stopKeeper(child)
                 } catch (error: Throwable) {
                     System.err.println("ERROR: Could not detach folder: ${error.message}")
                     exitCode = 1
                 }
-                println("OFF")
-                System.out.flush()
             }
+            if (keepers.isNotEmpty()) println("OFF")
+            System.out.flush()
         }
         kotlin.system.exitProcess(exitCode)
     }

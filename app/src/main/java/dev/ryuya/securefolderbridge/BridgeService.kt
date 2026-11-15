@@ -44,6 +44,7 @@ class BridgeService : Service() {
             .setContentText("/storage/emulated/0/SecureFolder").setContentIntent(open)
             .addAction(Notification.Action.Builder(null, "Disconnect", stop).build()).build())
         update("CONNECTING")
+        getSharedPreferences("settings", MODE_PRIVATE).edit().putString("work_state", "WAITING").apply()
         val readonly = getSharedPreferences("settings", MODE_PRIVATE).getBoolean("readonly", false)
         worker.execute {
             try {
@@ -56,11 +57,19 @@ class BridgeService : Service() {
                         when {
                             line == "CONNECTED" -> update("CONNECTED")
                             line == "LOCKED" -> update("LOCKED")
+                            line == "WORK_CONNECTED" || line == "WORK_LOCKED" -> {
+                                getSharedPreferences("settings", MODE_PRIVATE).edit().putString("work_state", line).apply()
+                                sendBroadcast(Intent(ACTION_STATE).setPackage(packageName))
+                            }
                             line.startsWith("ERROR:") -> update(line)
                         }
                     }
                 }
-                child.waitFor()
+                val result = child.waitFor()
+                val state = getSharedPreferences("settings", MODE_PRIVATE).getString("state", "")
+                if (result != 0 && (state == "CONNECTING" || state == "CONNECTED")) {
+                    update("ERROR: Root connection ended (exit $result). Check KernelSU permission.")
+                }
             } catch (error: Throwable) {
                 update("ERROR: ${error.message ?: error.javaClass.simpleName}")
             } finally {

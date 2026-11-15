@@ -11,8 +11,9 @@ object RootShell {
         require(operation in setOf("check", "status", "readonly", "readwrite"))
         val apk = context.applicationInfo.sourceDir
         val helper = File(context.applicationInfo.nativeLibraryDir, "libfolder_mount.so").absolutePath
+        val work = context.getSharedPreferences("settings", Context.MODE_PRIVATE).getBoolean("work_profile", true)
         val command = "CLASSPATH=${quote(apk)} exec /system/bin/app_process /system/bin " +
-            "dev.ryuya.securefolderbridge.RootMain ${quote(helper)} ${quote(operation)}"
+            "dev.ryuya.securefolderbridge.RootMain ${quote(helper)} ${quote(operation)} ${if (work) "work" else "main"}"
         return ProcessBuilder("su", "-M", "-c", command).redirectErrorStream(true).start()
     }
 

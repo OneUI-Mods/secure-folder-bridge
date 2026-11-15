@@ -13,20 +13,23 @@
 #include <unistd.h>
 
 #define SOURCE "/data/media/150"
-#define TARGET "/data/media/0/SecureFolder"
+#define TARGET_MAIN "/data/media/0/SecureFolder"
+#define TARGET_WORK "/data/media/10/SecureFolder"
 #define PRIVATE "/data/local/tmp/dev.ryuya.securefolderbridge"
-#define MARKER PRIVATE "/target-owner"
+static const char *target;
+static char control[1024];
+static char marker_path[1100];
 
 static int error(const char *operation) {
   fprintf(stderr, "%s: %s\n", operation, strerror(errno));
   return 1;
 }
 
-static int private_directory(void) {
-  if (mkdir(PRIVATE, 0700) && errno != EEXIST)
+static int root_directory(const char *path) {
+  if (mkdir(path, 0700) && errno != EEXIST)
     return error("private directory");
   struct stat st;
-  if (lstat(PRIVATE, &st) || !S_ISDIR(st.st_mode) || st.st_uid != 0 || (st.st_mode & 077)) {
+  if (lstat(path, &st) || !S_ISDIR(st.st_mode) || st.st_uid != 0 || (st.st_mode & 077)) {
     errno = EPERM;
     return error("private directory owner");
   }
@@ -35,17 +38,17 @@ static int private_directory(void) {
 
 static int owned_target(void) {
   struct stat st;
-  return !lstat(MARKER, &st) && S_ISREG(st.st_mode) && st.st_uid == 0 && !(st.st_mode & 077);
+  return !lstat(marker_path, &st) && S_ISREG(st.st_mode) && st.st_uid == 0 && !(st.st_mode & 077);
 }
 
 static int mounted(void) {
   FILE *stream = fopen("/proc/self/mountinfo", "re");
   if (!stream)
     return -1;
-  char line[8192], root[1024], target[1024];
+  char line[8192], root[1024], mount_target[1024];
   int found = 0;
   while (fgets(line, sizeof(line), stream)) {
-    if (sscanf(line, "%*u %*u %*s %1023s %1023s", root, target) == 2 && !strcmp(target, TARGET)) {
+    if (sscanf(line, "%*u %*u %*s %1023s %1023s", root, mount_target) == 2 && !strcmp(mount_target, target)) {
       // Bind root must be the exact Secure Folder shared-storage root.
       found = !strcmp(root, "/media/150") ? 1 : -1;
       break;
@@ -56,11 +59,17 @@ static int mounted(void) {
 }
 
 int main(int argc, char **argv) {
-  if (getuid() != 0 || argc != 2) {
+  if (getuid() != 0 || (argc != 2 && argc != 3)) {
     fprintf(stderr, "Root and one operation are required\n");
     return 2;
   }
-  if (private_directory())
+  const char *user = argc == 3 ? argv[2] : "0";
+  if (strcmp(user, "0") && strcmp(user, "10"))
+    return 2;
+  target = !strcmp(user, "10") ? TARGET_WORK : TARGET_MAIN;
+  snprintf(control, sizeof(control), "%s/user%s", PRIVATE, user);
+  snprintf(marker_path, sizeof(marker_path), "%s/target-owner", control);
+  if (root_directory(PRIVATE) || root_directory(control))
     return 1;
   signal(SIGPIPE, SIG_IGN);
   int keep = !strncmp(argv[1], "keep-", 5);
@@ -77,9 +86,9 @@ int main(int argc, char **argv) {
       errno = EPERM;
       return error("unowned mount");
     }
-    if (active && umount2(TARGET, MNT_DETACH))
+    if (active && umount2(target, MNT_DETACH))
       return error("unmount");
-    if (rmdir(TARGET) && errno != ENOENT && errno != ENOTEMPTY)
+    if (rmdir(target) && errno != ENOENT && errno != ENOTEMPTY)
       return error("remove empty mount point");
     return 0;
   }
@@ -93,20 +102,20 @@ int main(int argc, char **argv) {
     errno = EBUSY;
     return error("existing mount");
   }
-  struct stat target;
-  if (!lstat(TARGET, &target)) {
-    if (!owned_target() || !S_ISDIR(target.st_mode)) {
+  struct stat target_stat;
+  if (!lstat(target, &target_stat)) {
+    if (!owned_target() || !S_ISDIR(target_stat.st_mode)) {
       errno = EEXIST;
       return error("existing folder is not owned by this app");
     }
-    if (rmdir(TARGET))
+    if (rmdir(target))
       return error("mount point is not empty");
   } else if (errno != ENOENT) {
     return error("mount point");
   }
-  if (mkdir(TARGET, 0770) || chown(TARGET, 1023, 1023) || chmod(TARGET, 02770))
+  if (mkdir(target, 0770) || chown(target, 1023, 1023) || chmod(target, 02770))
     return error("create mount point");
-  int marker = open(MARKER, O_WRONLY | O_CREAT | O_NOFOLLOW | O_CLOEXEC, 0600);
+  int marker = open(marker_path, O_WRONLY | O_CREAT | O_NOFOLLOW | O_CLOEXEC, 0600);
   if (marker < 0)
     return error("ownership marker");
   close(marker);
@@ -120,15 +129,15 @@ int main(int argc, char **argv) {
     int changed = (int)syscall(SYS_mount_setattr, tree, "", AT_EMPTY_PATH, &attributes,
                               sizeof(attributes));
     if (!changed)
-      changed = (int)syscall(SYS_move_mount, tree, "", AT_FDCWD, TARGET, MOVE_MOUNT_F_EMPTY_PATH);
+      changed = (int)syscall(SYS_move_mount, tree, "", AT_FDCWD, target, MOVE_MOUNT_F_EMPTY_PATH);
     int saved = errno;
     close(tree);
     if (changed) {
-      rmdir(TARGET);
+      rmdir(target);
       errno = saved;
       return error("publish read-only mount");
     }
-  } else if (mount(SOURCE, TARGET, NULL, MS_BIND, NULL)) {
+  } else if (mount(SOURCE, target, NULL, MS_BIND, NULL)) {
     return error("bind mount");
   }
   puts(readonly ? "READ_ONLY" : "READ_WRITE");
@@ -141,9 +150,9 @@ int main(int argc, char **argv) {
     do {
       received = read(STDIN_FILENO, &stop, 1);
     } while (received < 0 && errno == EINTR);
-    if (umount2(TARGET, MNT_DETACH))
+    if (umount2(target, MNT_DETACH))
       return error("detach after controller exit");
-    rmdir(TARGET);
+    rmdir(target);
     puts("OFF");
   }
   return 0;
