@@ -4,7 +4,7 @@ import android.os.IBinder
 import android.os.Process
 import java.io.File
 import java.io.RandomAccessFile
-import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 /** Runs only in the explicitly authorized root process, in init's mount namespace. */
@@ -109,13 +109,13 @@ object RootMain {
                     RandomAccessFile("$PRIVATE/session.lock", "rw").use { lockFile ->
                         val lock = lockFile.channel.tryLock() ?: error("Another connection is active")
                         lock.use {
-                            val stopped = AtomicBoolean(false)
+                            val stopped = CountDownLatch(1)
                             val input = Thread({
                                 try {
                                     // Closing the controlling app also closes this pipe.
                                     System.`in`.bufferedReader().readLine()
                                 } finally {
-                                    stopped.set(true)
+                                    stopped.countDown()
                                 }
                             }, "BridgeControl").apply { isDaemon = true }
                             input.start()
@@ -123,9 +123,9 @@ object RootMain {
                                 println("WAITING")
                                 System.out.flush()
                                 // No wake lock, alarm, file scan, or mount while waiting.
-                                while (!stopped.get() && !gate.available()) Thread.sleep(5000)
+                                while (stopped.count > 0 && !gate.available()) stopped.await(5, TimeUnit.SECONDS)
                             }
-                            if (stopped.get()) return
+                            if (stopped.count == 0L) return
                             check(gate.available()) { "Secure Folder became locked" }
                             val readonly = operation.endsWith("readonly")
                             keepers[0] = startKeeper(helper, readonly, 0)
@@ -137,8 +137,7 @@ object RootMain {
                             }
                             println("CONNECTED")
                             System.out.flush()
-                            while (!stopped.get()) {
-                                Thread.sleep(750)
+                            while (!stopped.await(750, TimeUnit.MILLISECONDS)) {
                                 if (!gate.available()) {
                                     println("LOCKED")
                                     break
