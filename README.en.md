@@ -29,7 +29,7 @@ The default is **read/write**. Creating, editing, moving, and deleting files aff
 
 Normally, a notification and root monitor run only while connected. Screen-off, phone/Secure Folder locking, or controller termination disconnects the folders.
 
-Enable **Connect after startup** to wait for the phone and Secure Folder to unlock after boot, then connect once. It defaults OFF. Grant root beforehand. A notification remains visible while waiting; turning the connection OFF cancels waiting. The app never unlocks the phone or profile for you. After screen-off/lock disconnects an established connection, it does not automatically reconnect again before the next boot.
+Enable **Connect after startup** to wait for the phone and Secure Folder to unlock after boot, then connect once. It defaults ON; an existing OFF choice is preserved. Grant root beforehand. A notification remains visible while waiting; turning the connection OFF cancels waiting. The app never unlocks the phone or profile for you. After screen-off/lock disconnects an established connection, it does not automatically reconnect again before the next boot.
 
 ## Supported scope
 
