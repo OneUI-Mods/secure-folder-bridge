@@ -119,7 +119,7 @@ class MainActivity : AppCompatActivity() {
         binding.connectionSwitch.isEnabled = !connecting
         binding.readOnlySwitch.isChecked = readonly
         binding.workProfileSwitch.isChecked = work && workExists
-        binding.autoBootSwitch.isChecked = settings.getBoolean("auto_boot", false)
+        binding.autoBootSwitch.isChecked = settings.getBoolean("auto_boot", true)
         binding.readOnlySwitch.isEnabled = !active
         binding.workProfileSwitch.isEnabled = !active && workExists
         binding.workProfileDescription.setText(if (workExists) R.string.work_description else R.string.work_missing_summary)

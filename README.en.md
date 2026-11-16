@@ -4,6 +4,10 @@
 
 A rooted Galaxy app that exposes Secure Folder's shared files as ordinary folders in main-profile and work-profile file managers. It connects **Internal storage / SecureFolder** to the original shared storage without copying files.
 
+## Automatic startup after boot
+
+Automatic startup after device boot can be switched on or off in settings. The default is on when no choice has been saved; an existing off choice is preserved. Startup only restores configured behavior and does not override feature switches, permissions, or lock-state restrictions.
+
 ## Interface and settings
 
 Material 3 components and colors follow the device's light/dark theme. The top card shows connection state and read/write mode. Each profile's destination card can copy its path. Connection options are locked while connected; errors appear in a separate card. Licenses are in the top-right menu.
