@@ -51,3 +51,5 @@ See the [developer documentation](docs/development.md) for source, build instruc
 ## License
 
 The app uses the MIT License. Material Components, AndroidX, and Kotlin Apache 2.0 texts are bundled in the app. Signing keys and passwords are excluded from source and distributions.
+
+[Build environment / ビルド環境](docs/build-environment.md)

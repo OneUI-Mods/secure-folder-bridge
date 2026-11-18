@@ -11,9 +11,11 @@ val signingProperties =
 
 android {
     namespace = "dev.ryuya.securefolderbridge"
-    compileSdk = 37
+    compileSdk {
+        version = release(37) { minorApiLevel = 2 }
+    }
     buildToolsVersion = "37.0.0"
-    ndkVersion = "28.2.13676358"
+    ndkVersion = "30.0.16248370"
     defaultConfig {
         applicationId = "dev.ryuya.securefolderbridge"
         minSdk = 36
@@ -69,7 +71,7 @@ val buildNative =
                 else "linux-x86_64"
             commandLine(
                 sdk.resolve(
-                    "ndk/28.2.13676358/toolchains/llvm/prebuilt/$host/bin/aarch64-linux-android31-clang",
+                    "ndk/30.0.16248370/toolchains/llvm/prebuilt/$host/bin/aarch64-linux-android31-clang",
                 ),
                 "-O2",
                 "-Wall",

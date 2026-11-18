@@ -51,3 +51,5 @@ Material 3の配色と部品を使い、端末のライト・ダークテーマ�
 ## ライセンス
 
 アプリ本体はMITです。Material Components・AndroidX・KotlinのApache 2.0ライセンスをアプリ内に同梱しています。署名鍵やパスワードはリポジトリと配布物へ含めません。
+
+[Build environment / ビルド環境](docs/build-environment.md)
