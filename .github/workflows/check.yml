@@ -16,4 +16,4 @@ jobs:
           packages: platform-tools
           log-accepted-android-sdk-licenses: false
       - run: sdkmanager 'platforms;android-37.0' 'build-tools;37.0.0' 'ndk;28.2.13676358'
-      - run: ./gradlew :app:assembleRelease :app:lintRelease
+      - run: ./gradlew :app:testDebugUnitTest :app:assembleRelease :app:lintRelease

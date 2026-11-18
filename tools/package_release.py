@@ -22,7 +22,7 @@ def main():
     run('git', 'diff', '--exit-code', 'HEAD')
     if run('git', 'ls-files', '--others', '--exclude-standard', capture=True).stdout.strip():
         raise SystemExit('Commit release sources first')
-    run('./gradlew', ':app:assembleRelease', ':app:lintRelease')
+    run('./gradlew', ':app:testDebugUnitTest', ':app:assembleRelease', ':app:lintRelease')
     tools = Path(os.environ.get('ANDROID_HOME', Path.home() / 'Library/Android/sdk')) / 'build-tools/37.0.0'
     output = ROOT / 'app/build/outputs/apk/release'
     metadata = json.loads((output / 'output-metadata.json').read_text())
