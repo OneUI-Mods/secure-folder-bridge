@@ -1,5 +1,7 @@
 # Secure Folder Bridge
 
+Installation requires Android 17 (API 37) or later.
+
 [日本語](README.md) · English
 
 A rooted Galaxy app that exposes Secure Folder's shared files as ordinary folders in main-profile and work-profile file managers. It connects **Internal storage / SecureFolder** to the original shared storage without copying files.
@@ -35,7 +37,7 @@ Enable **Connect after startup** to wait for the phone and Secure Folder to unlo
 
 - KernelSU with root and access to the global mount namespace is required.
 - The current target is a Galaxy whose Secure Folder runs as user 150.
-- Built with SDK 37 for Android 16+. Physical command-level tests used Galaxy S26 Ultra / Android 17; Android 16 has not been revalidated on hardware.
+- Physical command-level tests used Galaxy S26 Ultra / Android 17.
 - Only shared storage such as photos and Downloads is connected. Private app-internal data is excluded.
 - The file manager needs access to its own profile's shared storage. Paths are `/storage/emulated/0/SecureFolder` and `/storage/emulated/10/SecureFolder`.
 - Read-only mode uses Linux detached-mount APIs. Missing APIs cause a failure, never a silent fallback to read/write.

@@ -1,5 +1,7 @@
 # Secure Folder Bridge
 
+インストールにはAndroid 17（API 37）以降が必要です。
+
 [日本語](README.md) · [English](README.en.md)
 
 GalaxyのSecure Folder内にあるファイルを、通常側と仕事用プロファイルのファイルマネージャーからフォルダとして開くrootアプリです。ファイルをコピーせず、内部ストレージの `SecureFolder` から元の共有ストレージへ接続します。
@@ -35,7 +37,7 @@ Material 3の配色と部品を使い、端末のライト・ダークテーマ�
 
 - rootとグローバルmount namespaceを使えるKernelSUが必要です。
 - 現在の対象は、Secure Folderがユーザー150として動くGalaxyです。
-- Android 16以降向け、SDK 37でビルドします。実機でのコマンド検証はGalaxy S26 Ultra / Android 17です。Android 16の実機再検証は未実施です。
+- 実機でのコマンド検証はGalaxy S26 Ultra / Android 17です。
 - 接続元は写真・Downloadなどの共有ストレージです。各アプリの内部データは含みません。
 - ファイルマネージャー側には、そのプロファイルの共有ストレージへアクセスする権限が必要です。接続先は通常側が `/storage/emulated/0/SecureFolder`、仕事用側が `/storage/emulated/10/SecureFolder` です。
 - 読み取り専用にはLinuxのdetached mount APIを使います。必要なAPIがない場合は読み書き接続へ勝手に変更せず、失敗として停止します。
